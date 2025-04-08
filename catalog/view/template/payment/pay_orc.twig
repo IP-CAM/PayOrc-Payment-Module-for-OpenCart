@@ -1,0 +1,189 @@
+<link rel="stylesheet" type="text/css" href="{{ config_ssl }}extension/pay_orc/catalog/view/theme/default/stylesheet/front.css">
+{% if testmode %}
+<div class="alert alert-info">
+  Please use below test card info in test mode:<br />
+  <strong>4012 0010 3714 1112</strong> (for success payment)<br />
+  <strong>4012 0010 3716 7778</strong> (3D Secure authentication) <br />
+  You can use any expiry date as 01/30 and CVC code as 123 for card.
+</div>
+{% endif %}
+<div class="text-end">
+  <button type="button" id="button-confirm" class="btn btn-primary">
+    {{ button_confirm }}
+  </button>
+  <div id="payorc-modal" class="modal">
+    <div class="modal-content">
+      <span class="close">&times;</span>
+      <div id="payorc-loader">
+        <img
+          src="{{ config_ssl }}extension/pay_orc/catalog/view/theme/default/image/spinner-loader.gif"
+          width="60px"
+          height="60px"
+        />
+      </div>
+      <iframe
+        id="pay_link"
+        src=""
+        style="height: 85vh; width: 100%; border: none; border-radius: 10px"
+      ></iframe>
+    </div>
+  </div>
+</div>
+<script type="text/javascript">
+  <!--
+
+    var modal = document.getElementById("payorc-modal");
+    var span = document.getElementsByClassName("close")[0];
+    span.onclick = function () {
+        modal.style.display = "none";
+        $("#payorc-loader").hide();
+        document.getElementById("pay_link").src = "";
+    };
+
+    $(document).on("click", "#payorc-modal .modal-content span.close", function(e) {
+        $("#payorc-modal").hide();
+        $("#payorc-loader").hide();
+        document.getElementById("pay_link").src = "";
+    });
+
+    $('#button-confirm').on('click', function () {
+        var element = this;
+        var platform = getPlatform();
+        var browserName = getBrowser();
+        var browserVersion = navigator.userAgent.match(/(Chrome|Firefox|Safari|Edg|OPR)\/([\d.]+)/)?.[2] || "Unknown";
+        $.ajax({
+            url: 'index.php?route=extension/pay_orc/payment/pay_orc.payment&language={{ language }}',
+            data: {
+                platform: platform,
+                browserName: browserName,
+                browserVersion: browserVersion
+            },
+            dataType: 'json',
+            beforeSend: function () {
+                $(element).button('loading');
+            },
+            complete: function () {
+                $(element).button('reset');
+            },
+            success: function (data) {
+
+                if (data.code == 1) {
+                    var error = JSON.parse(data.error);
+                    $('#alert').prepend('<div class="alert alert-danger alert-dismissible"><i class="fa-solid fa-circle-exclamation"></i> ' + error.message + ' <button type="button" class="btn-close" data-bs-dismiss="alert"></button></div>');
+                    return;
+                }
+
+                if (data.code == 2 && data.accept_payment == 2) {
+                    location = data.redirect.payment_link;
+                }
+
+                if (data.code == 2 && data.accept_payment == 1) {
+                    attachEvent();
+                    $("#payorc-modal").show();
+                    $("#payorc-loader").show();
+                    setTimeout(function() {
+                        $("#payorc-loader").hide();
+                    }, 3000);
+                    document.getElementById("pay_link").src = data.redirect.iframe_link;
+                }
+
+                return;
+            },
+            error: function (xhr, ajaxOptions, thrownError) {
+                console.log(thrownError + "\r\n" + xhr.statusText + "\r\n" + xhr.responseText);
+            }
+        });
+    });
+    function getPlatform() {
+        const ua = navigator.userAgent || navigator.vendor || window.opera;
+        if (/android/i.test(ua)) {
+            return "Android";
+        }
+        if (/iPad|iPhone|iPod/.test(ua) && !window.MSStream) {
+            return "iOS";
+        }
+        if (/Win/.test(navigator.platform)) {
+            return "Windows";
+        }
+        if (/Mac/.test(navigator.platform)) {
+            return "Mac";
+        }
+        if (/Linux/.test(navigator.platform)) {
+            return "Linux";
+        }
+        return "Unknown";
+    }
+
+    function getBrowser() {
+        const ua = navigator.userAgent;
+        if (ua.includes("Chrome") && !ua.includes("Edg") && !ua.includes("OPR")) return "Chrome";
+        if (ua.includes("Firefox")) return "Firefox";
+        if (ua.includes("Safari") && !ua.includes("Chrome")) return "Safari";
+        if (ua.includes("Edg")) return "Edge";
+        if (ua.includes("OPR") || ua.includes("Opera")) return "Opera";
+        return "Unknown";
+    }
+
+    function attachEvent() {
+        var eventMethod = window.addEventListener
+            ? "addEventListener"
+            : "attachEvent";
+        var eventer = window[eventMethod];
+        var messageEvent = eventMethod == "attachEvent" ? "onmessage" : "message";
+        eventer(
+            messageEvent,
+            function (e) {
+                if(e.data) {
+                    let fixedData = e.data.replace(/"parameters":"(\[.*?\])"/g, function(match, p1) {
+                        return `"parameters":"${p1.replace(/\\/g, '\\\\').replace(/"/g, '\\"')}"`;
+                    }).replace(/"custom_data":"(\[.*?\])"/g, function(match, p1) {
+                        return `"custom_data":"${p1.replace(/\\/g, '\\\\').replace(/"/g, '\\"')}"`;
+                    }).replace(/"(\{.*?\})"/g, function(match) {
+                        return match.replace(/\\/g, '\\\\').replace(/"/g, '\\"');
+                    });
+                    result = JSON.parse(fixedData);
+                    if (result['status'] == "SUCCESS") {
+                        handleValidation(result);
+                    } else if (result['status'] == "CANCELLED") {
+                        $("#payorc-loader").hide();
+                        document.getElementById("pay_link").src = "";
+                        setTimeout(function () {
+                            $("#payorc-modal").hide();
+                        }, 200);
+                    } else if (result['status'] == "FAILED") {
+                        handleValidation(result);
+                    }
+                }
+            },
+            false
+        );
+    }
+
+    function handleValidation(data)
+    {
+        data['ajax'] = 1;
+        $.ajax({
+            type: "POST",
+            url: 'index.php?route=extension/pay_orc/payment/pay_orc.embedValidation&language={{ language }}',
+            data: data,
+            async: false,
+            success: function (resp) {
+                console.log(resp);
+                var data = JSON.parse(resp);
+                if (data.code == 1) {
+                    setTimeout(function(){
+                        location.replace = data.redirect_url;
+                        window.location.href = data.redirect_url;
+                    }, 1000);
+                } else {
+                    location.replace = data.redirect_url;
+                    window.location.href = data.redirect_url;
+                }
+            },
+            error: function (jqXHR, exception) {
+                return false;
+            },
+        });
+    }
+    //-->
+</script>

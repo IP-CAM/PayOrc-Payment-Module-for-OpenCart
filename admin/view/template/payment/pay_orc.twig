@@ -1,0 +1,262 @@
+<link rel="stylesheet" type="text/css" data-domain="{{ domain }}" href="{{ domain }}extension/pay_orc/admin/view/theme/default/stylesheet/back.css">
+{{ header }}{{ column_left }}
+<div id="content">
+  <div class="page-header">
+    <div class="container-fluid">
+      <div class="float-end">
+        <button type="submit" form="form-payment" data-bs-toggle="tooltip" title="{{ button_save }}" class="btn btn-primary"><i class="fa-solid fa-save"></i></button>
+        <a href="{{ back }}" data-bs-toggle="tooltip" title="{{ button_back }}" class="btn btn-light"><i class="fa-solid fa-reply"></i></a></div>
+      <h1>{{ heading_title }}</h1>
+      <ol class="breadcrumb">
+        {% for breadcrumb in breadcrumbs %}
+          <li class="breadcrumb-item"><a href="{{ breadcrumb.href }}">{{ breadcrumb.text }}</a></li>
+        {% endfor %}
+      </ol>
+    </div>
+  </div>
+  <div class="container-fluid">
+    <div class="card">
+      <div class="card-header"><i class="fa-solid fa-pencil"></i> {{ text_edit }}</div>
+      <div class="card-body">
+        <form id="form-payment" action="{{ save }}" method="post" data-oc-toggle="ajax">
+          <div class="row mb-3">
+            <label for="input-test-mode" class="col-sm-2 col-form-label">{{ entry_test_mode }}</label>
+            <div class="col-sm-10">
+              <div class="form-check form-switch form-switch-lg payment-mode">
+                <input type="hidden" name="payment_pay_orc_test_mode" id="input-test-mode" value="0"/>
+                <input type="checkbox" name="payment_pay_orc_test_mode" value="1" id="input-live-mode" class="form-check-input"{% if payment_pay_orc_test_mode %} checked{% endif %}/>
+              </div>
+            </div>
+          </div>
+          <div class="row mb-3">
+            <label for="input-merchant-id" class="col-sm-2 col-form-label">{{ entry_merchant_id }}</label>
+            <div class="col-sm-10">
+              <input type="text" name="payment_pay_orc_test_merchant_id" id="payment_pay_orc_test_merchant_id" value="{{ payment_pay_orc_test_merchant_id }}" placeholder="{{ entry_merchant_id }}" class="form-control"/>
+              <input type="text" name="payment_pay_orc_live_merchant_id" id="payment_pay_orc_live_merchant_id" value="{{ payment_pay_orc_live_merchant_id }}" placeholder="{{ entry_merchant_id }}" class="form-control"/>
+              <div id="error-merchant-id" class="invalid-feedback"></div>
+            </div>
+          </div>
+          <div class="row mb-3">
+            <label for="input-secret-key" class="col-sm-2 col-form-label">{{ entry_secret_key }}</label>
+            <div class="col-sm-10">
+              <input type="text" name="payment_pay_orc_test_secret_key" id="payment_pay_orc_test_secret_key" value="{{ payment_pay_orc_test_secret_key }}" placeholder="{{ entry_secret_key }}" class="form-control"/>
+              <input type="text" name="payment_pay_orc_live_secret_key" id="payment_pay_orc_live_secret_key" value="{{ payment_pay_orc_live_secret_key }}" placeholder="{{ entry_secret_key }}" class="form-control"/>
+              <div id="error-secret-key" class="invalid-feedback"></div>
+            </div>
+          </div>
+          <div class="row mb-3">
+            <label for="input-action-type" class="col-sm-2 col-form-label">{{ entry_action_type }}</label>
+            <div class="col-sm-10">
+              <select name="payment_pay_orc_action_type" id="input-action-type" class="form-select">
+                {% for action_type in action_types %}
+                  <option value="{{ action_type.action_type_id }}"{% if action_type.action_type_id == payment_pay_orc_action_type %} selected{% endif %}>{{ action_type.action_type_name }}</option>
+                {% endfor %}
+              </select>
+            </div>
+          </div>
+          <div class="row mb-3">
+            <label for="input-payment-solutions" class="col-sm-2 col-form-label">{{ entry_accept_payment }}</label>
+            <div class="col-sm-10">
+              <select name="payment_pay_orc_accept_payment" id="input-payment-solutions" class="form-select">
+                {% for payment_solution in payment_solutions %}
+                  <option value="{{ payment_solution.solution_id }}"{% if payment_solution.solution_id == payment_pay_orc_accept_payment %} selected{% endif %}>{{ payment_solution.solution_name }}</option>
+                {% endfor %}
+              </select>
+            </div>
+          </div>
+          <div class="row mb-3">
+            <label for="input-capture-methods" class="col-sm-2 col-form-label">{{ entry_capture_mode }}</label>
+            <div class="col-sm-10">
+              <select name="payment_pay_orc_capture_mode" id="input-capture-methods" class="form-select">
+                {% for capture_method in capture_methods %}
+                  <option value="{{ capture_method.catpture_id }}"{% if capture_method.catpture_id == payment_pay_orc_capture_mode %} selected{% endif %}>{{ capture_method.catpture_name }}</option>
+                {% endfor %}
+              </select>
+            </div>
+          </div>
+          <div class="row mb-3">
+            <label for="input-order-status" class="col-sm-2 col-form-label">{{ entry_order_success_status }}</label>
+            <div class="col-sm-10">
+              <select name="payment_pay_orc_order_success_status_id" id="input-order-status" class="form-select">
+                {% for order_status in order_statuses %}
+                  <option value="{{ order_status.order_status_id }}"{% if order_status.order_status_id == payment_pay_orc_order_success_status_id %} selected{% endif %}>{{ order_status.name }}</option>
+                {% endfor %}
+              </select>
+            </div>
+          </div>
+          <div class="row mb-3">
+            <label for="input-order-status" class="col-sm-2 col-form-label">{{ entry_order_fail_status }}</label>
+            <div class="col-sm-10">
+              <select name="payment_pay_orc_order_fail_status_id" id="input-order-status" class="form-select">
+                {% for order_status in order_statuses %}
+                  <option value="{{ order_status.order_status_id }}"{% if order_status.order_status_id == payment_pay_orc_order_fail_status_id %} selected{% endif %}>{{ order_status.name }}</option>
+                {% endfor %}
+              </select>
+            </div>
+          </div>
+          <!-- <div class="row mb-3">
+            <label for="input-geo-zone" class="col-sm-2 col-form-label">{{ entry_geo_zone }}</label>
+            <div class="col-sm-10">
+              <select name="payment_pay_orc_geo_zone_id" id="input-geo-zone" class="form-select">
+                <option value="0">{{ text_all_zones }}</option>
+                {% for geo_zone in geo_zones %}
+                  <option value="{{ geo_zone.geo_zone_id }}"{% if geo_zone.geo_zone_id == payment_pay_orc_geo_zone_id %} selected{% endif %}>{{ geo_zone.name }}</option>
+                {% endfor %}
+              </select>
+            </div>
+          </div> -->
+          <div class="row mb-3">
+            <label for="input-status" class="col-sm-2 col-form-label">{{ entry_status }}</label>
+            <div class="col-sm-10">
+              <div class="form-check form-switch form-switch-lg">
+                <input type="hidden" name="payment_pay_orc_status" value="0"/>
+                <input type="checkbox" name="payment_pay_orc_status" value="1" id="input-status" class="form-check-input"{% if payment_pay_orc_status %} checked{% endif %}/>
+              </div>
+            </div>
+          </div>
+          <div class="row mb-3">
+            <label for="input-sort-order" class="col-sm-2 col-form-label">{{ entry_sort_order }}</label>
+            <div class="col-sm-10">
+              <input type="text" name="payment_pay_orc_sort_order" value="{{ payment_pay_orc_sort_order }}" placeholder="{{ entry_sort_order }}" id="input-sort-order" class="form-control"/>
+            </div>
+          </div>
+        </form>
+        
+        <hr>
+        
+        <div class="row mb-3">
+          <div class="col-12">
+              <h4>Transaction Lookup</h4>
+              <div class="card">
+                  <div class="card-body ">
+                      <div id="transaction-result">                      
+                          <div class="table-responsive">
+                              <table class="table table-bordered table-striped">
+                                  <thead>
+                                      <tr>
+                                          <th>Sno</th>
+                                          <th>Payorc Order ID</th>
+                                          <th>Customer Email</th>
+                                          <th>ID Order</th>
+                                          <th>Transaction ID</th>
+                                          <th>Paid Amount</th>
+                                          <th>Status</th>
+                                          <th>Response</th>
+                                          <th>Date</th>
+                                      </tr>
+                                  </thead>
+                                  <tbody>
+                                      {% if transactions %}
+                                          {% for transaction in transactions %}
+                                              <tr>
+                                                  <td data-label="Sno">{{ transaction.id_payorc }}</td>
+                                                  <td data-label="Payorc Order ID">{{ transaction.p_order_id }}</td>
+                                                  <td data-label="Customer Email">{{ transaction.customer_email }}</td>
+                                                  <td data-label="ID Order">{{ transaction.id_order }}</td>
+                                                  <td data-label="Transaction ID">{{ transaction.transaction_id }}</td>
+                                                  <td data-label="Paid Amount">{{ transaction.paid_amount }}</td>
+                                                  <td data-label="Status">{{ transaction.status }}</td>
+                                                  <td data-label="Response">{{ transaction.response }}</td>
+                                                  <td data-label="Date">{{ transaction.date_add }}</td>
+                                              </tr>
+                                          {% endfor %}
+                                      {% else %}
+                                          <tr>
+                                              <td colspan="9" class="text-center">No transactions found</td>
+                                          </tr>
+                                      {% endif %}
+                                  </tbody>
+                              </table>
+                          </div>
+                      </div>
+                  </div>
+              </div>
+          </div>
+        </div>
+
+        <div class="alert alert-info" role="alert">
+          <i class="fa-solid fa-info-circle"></i> {{ text_pay_orc_info }}
+        </div>
+
+      </div>
+    </div>
+  </div>
+</div>
+{{ footer }}
+
+<script>
+  $(document).ready(function(e) {
+    if($("input[name='payment_pay_orc_test_mode']:checked").val()) {
+      $("#payment_pay_orc_test_merchant_id").hide();
+      $("#payment_pay_orc_live_merchant_id").show();
+      $("#payment_pay_orc_test_secret_key").hide();
+      $("#payment_pay_orc_live_secret_key").show();
+    } else {
+      $("#payment_pay_orc_test_merchant_id").show();
+      $("#payment_pay_orc_live_merchant_id").hide();
+      $("#payment_pay_orc_test_secret_key").show();
+      $("#payment_pay_orc_live_secret_key").hide();
+    }
+    $(".payment-mode").change(function(e) {
+      if($("input[name='payment_pay_orc_test_mode']:checked").val()) {
+        $("#payment_pay_orc_test_merchant_id").hide();
+        $("#payment_pay_orc_live_merchant_id").show();
+        $("#payment_pay_orc_test_secret_key").hide();
+        $("#payment_pay_orc_live_secret_key").show();
+      } else {
+        $("#payment_pay_orc_test_merchant_id").show();
+        $("#payment_pay_orc_live_merchant_id").hide();
+        $("#payment_pay_orc_test_secret_key").show();
+        $("#payment_pay_orc_live_secret_key").hide();
+      }
+    })
+
+    // Add transaction lookup functionality
+    $('#button-lookup').on('click', function() {
+        var orderId = $('#input-order-id').val();
+        
+        if (!orderId) {
+            alert('Please enter an Order ID');
+            return;
+        }
+        
+        $.ajax({
+            url: 'index.php?route=extension/pay_orc/payment/pay_orc.getTransaction&user_token={{ user_token }}&order_id=' + orderId,
+            dataType: 'json',
+            beforeSend: function() {
+                $('#button-lookup').prop('disabled', true);
+                $('#transaction-result').hide();
+            },
+            success: function(response) {
+                $('#button-lookup').prop('disabled', false);
+                $('#transaction-result').show();
+                
+                if (response.success) {
+                    $('.alert').removeClass('alert-danger').addClass('alert-success').html('<i class="fa-solid fa-check"></i> Transaction found');
+                    
+                    // Format the response data
+                    if (response.transaction.response) {
+                        try {
+                            var responseData = JSON.parse(response.transaction.response);
+                            $('.json-response').text(JSON.stringify(responseData, null, 2));
+                        } catch (e) {
+                            $('.json-response').text(response.transaction.response);
+                        }
+                    } else {
+                        $('.json-response').text('No response data available');
+                    }
+                } else {
+                    $('.alert').removeClass('alert-success').addClass('alert-danger').html('<i class="fa-solid fa-times"></i> ' + response.error);
+                    $('.json-response').text('');
+                }
+            },
+            error: function(xhr, ajaxOptions, thrownError) {
+                $('#button-lookup').prop('disabled', false);
+                $('#transaction-result').show();
+                $('.alert').removeClass('alert-success').addClass('alert-danger').html('<i class="fa-solid fa-times"></i> Error: ' + thrownError);
+                $('.json-response').text('');
+            }
+        });
+    });
+  })
+</script>

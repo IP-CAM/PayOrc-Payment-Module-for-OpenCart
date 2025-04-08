@@ -1,0 +1,14 @@
+#input-live-mode {
+    background-color: #f78181;
+    border-color: #f78181;
+}
+#input-live-mode.form-check-input {
+    --bs-form-switch-bg : url("data:image/svg+xml,%3csvg xmlns='http://www.w3.org/2000/svg' viewBox='-4 -4 8 8'%3e%3ccircle r='3' fill='%23fff'/%3e%3c/svg%3e");
+}
+#input-live-mode:checked {
+    background-color: #cdffcd !important;
+    border-color: #cdffcd !important;
+}
+#transaction-result {
+    overflow-x: auto;
+}
