@@ -6,7 +6,8 @@
 
 The **PayOrc Payment Module** enables merchants to accept payments via PayOrc's secure payment solutions. This module supports both **embedded** and **hosted** payment options and provides **manual** or **automatic** payment capture modes.
 
-  
+Signup for sandbox account: https://merchant.payorc.com/console/merchant-signup
+Visit API documentation: https://api.payorc.com
 
 ## Features
 
